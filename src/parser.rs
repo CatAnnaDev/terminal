@@ -86,14 +86,6 @@ pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
 
     let (rest, _) = skip_ws(&input)?;
 
-    if let Ok((rest, name)) = parse_statement(rest) {
-        return match name {
-            Statement::Assign(rest, stat) => Ok(("", stat)),
-            Statement::Expr(exp) => Ok((rest, exp)),
-        }
-    }
-
-
     let (mut i, lhs) = parse_term(rest)?;
     let mut v = lhs;
 
@@ -176,30 +168,24 @@ pub(crate) enum Statement {
     Expr(Expr),
 }
 
-fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>> {
+pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
 
     if let Ok((rest, name)) = parse_name(rest) {
         let (rest, _) = skip_ws(rest)?;
 
-        if let Ok((rest, operator)) = satisfy(|c| c == '=' || c == '+' || c == '-' || c == '*' || c == '/', rest) {
+        if let Ok((rest, operator)) = satisfy(|c| c == '=' , rest) {
             let (rest, _) = skip_ws(rest)?;
             let (rest,expr) = parse_expr(rest)?;
             let (rest, _) = skip_ws(rest)?;
 
             let statement = match operator {
                 '=' => Statement::Assign(name, expr),
-                //'+' => Statement::Add(name, expr),
-                //'-' => Statement::Sub(name, expr),
-                //'*' => Statement::Mul(name, expr),
-                //'/' => Statement::Div(name, expr),
                 _ => return Err(ParseError::InvalidChar(operator)),
             };
-
             return Ok((rest, statement));
         }
     }
-
     let (rest, expr) = parse_expr(rest)?;
     let (rest, _) = skip_ws(rest)?;
     Ok((rest, Statement::Expr(expr)))

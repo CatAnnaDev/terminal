@@ -19,3 +19,16 @@ pub fn eval(expr: Expr, hm: &HashMap<String, i32>) -> Option<i32> {
         }
     }
 }
+
+pub fn eval_statement(stmt: Statement, hm: &mut HashMap<String, i32>) -> Option<i32> {
+    match stmt {
+        Statement::Assign(a, b) => {
+            let x = eval(b, hm)?;
+            hm.insert(a.clone(), x);
+            Some(x)
+        }
+        Statement::Expr(a) => {
+            eval(a, hm)
+        }
+    }
+}
