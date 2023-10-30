@@ -13,19 +13,18 @@ fn main() -> Result<(), ParseError<'static>> {
 
     loop {
         let mut data = String::new();
-        print!("Meow>");
+        print!("🐱>");
         sou.flush().unwrap();
         let _ = sin.read_line(&mut data);
-
-        let x = parser::parse_statement(data.trim()).unwrap();
-        let eval = eval_statement(x.1,&mut hash).expect("").to_string();
-
+        let d = data.trim();
+        let (_, y) = parser::parse_statement(d).unwrap();
+        let eval = eval_statement(y,&mut hash);
         println!("hash: {:?}", hash);
-        print_data(data.trim().to_string(),eval);
+        print_data(d, format!("{}", eval.unwrap()));
     }
 }
 
-fn print_data(data: String, response: String){
+fn print_data(data: &str, response: String){
     println!("CMD: {}", data);
     println!("Result: {}", response);
     println!("{}", format!("{}", "-".repeat(20)));

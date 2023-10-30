@@ -8,9 +8,7 @@ pub fn eval(expr: Expr, hm: &HashMap<String, i32>) -> Option<i32> {
         Expr::Add(a, b) => Some(eval(*a, hm)? + eval(*b, hm)?),
         Expr::Sub(a, b) => Some(eval(*a, hm)? - eval(*b, hm)?),
         Expr::Mul(a, b) => Some(eval(*a, hm)? * eval(*b, hm)?),
-        Expr::Div(a, b) => {
-            Some(eval(*a, hm)? / eval(*b, hm)?)
-        }
+        Expr::Div(a, b) => Some(eval(*a, hm)? / eval(*b, hm)?),
         Expr::Var(s) => {
             match hm.get(&*s){
                 None => None,

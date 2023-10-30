@@ -1,10 +1,8 @@
 #[derive(Debug)]
 pub enum ParseError<'a> {
     Empty,
-    TooLong,
     InvalidChar(char),
     InvalidSequence(&'a str),
-    DivideByZero,
 }
 
 fn any_char(input: &str) -> Result<(&str, char), ParseError<'_>> {
@@ -62,14 +60,14 @@ fn parse_i32(input: &str) -> Result<(&str, i32), ParseError<'_>> {
     Ok((rest, n))
 }
 
-fn parse_bool(input: &str) -> Result<(&str, bool), ParseError<'_>> {
-    let (rest, s) = take_while(|c| c.is_alphabetic(), input)?;
-    match s {
-        "true" => Ok((rest, true)),
-        "false" => Ok((rest, false)),
-        _ => Err(ParseError::InvalidSequence(s)),
-    }
-}
+// fn parse_bool(input: &str) -> Result<(&str, bool), ParseError<'_>> {
+//     let (rest, s) = take_while(|c| c.is_alphabetic(), input)?;
+//     match s {
+//         "true" => Ok((rest, true)),
+//         "false" => Ok((rest, false)),
+//         _ => Err(ParseError::InvalidSequence(s)),
+//     }
+// }
 
 #[derive(Debug)]
 pub(crate) enum Expr {
