@@ -10,15 +10,6 @@ fn main() -> Result<(), ParseError<'static>> {
     let sin = stdin();
     let mut sou = stdout();
     let mut hash = HashMap::new();
-    hash.insert(String::from("x"), 3);
-    hash.insert(String::from("y"), 4);
-
-   // if let Ok((rest, name)) = parse_statement(rest) {
-   //     return match name {
-   //         Statement::Assign(rest, stat) => Ok((rest, stat)),
-   //         Statement::Expr(exp) => Ok((rest, exp)),
-   //     }
-   // }
 
     loop {
         let mut data = String::new();
