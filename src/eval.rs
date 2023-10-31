@@ -2,13 +2,21 @@ use std::collections::HashMap;
 use crate::parser::Expr;
 use crate::parser::Statement;
 
-pub fn eval(expr: Expr, hm: &HashMap<String, i32>) -> Option<i32> {
+pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
     match expr {
         Expr::Int(e) => Some(e),
         Expr::Add(a, b) => Some(eval(*a, hm)? + eval(*b, hm)?),
         Expr::Sub(a, b) => Some(eval(*a, hm)? - eval(*b, hm)?),
         Expr::Mul(a, b) => Some(eval(*a, hm)? * eval(*b, hm)?),
-        Expr::Div(a, b) => Some(eval(*a, hm)? / eval(*b, hm)?),
+        Expr::Div(a, b) => {
+            let a = eval(*a, hm)?;
+            let b = eval(*b, hm)?;
+            if b==0.0 {
+                None
+            } else {
+                Some(a / b)
+            }
+        }
         Expr::Var(s) => {
             match hm.get(&*s){
                 None => None,
@@ -18,7 +26,7 @@ pub fn eval(expr: Expr, hm: &HashMap<String, i32>) -> Option<i32> {
     }
 }
 
-pub fn eval_statement(stmt: Statement, hm: &mut HashMap<String, i32>) -> Option<i32> {
+pub fn eval_statement(stmt: Statement, hm: &mut HashMap<String, f64>) -> Option<f64> {
     match stmt {
         Statement::Assign(a, b) => {
             let x = eval(b, hm)?;

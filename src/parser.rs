@@ -5,6 +5,22 @@ pub enum ParseError<'a> {
     InvalidSequence(&'a str),
 }
 
+#[derive(Debug)]
+pub(crate) enum Expr {
+    Int(f64),
+    Add(Box<Expr>, Box<Expr>),
+    Sub(Box<Expr>, Box<Expr>),
+    Mul(Box<Expr>, Box<Expr>),
+    Div(Box<Expr>, Box<Expr>),
+    Var(String),
+}
+
+#[derive(Debug)]
+pub(crate) enum Statement {
+    Assign(String, Expr),
+    Expr(Expr),
+}
+
 fn any_char(input: &str) -> Result<(&str, char), ParseError<'_>> {
     match input.chars().next() {
         None => Err(ParseError::Empty),
@@ -52,11 +68,9 @@ fn skip_ws(input: &str) -> Result<(&str, ()), ParseError<'_>> {
     Ok((rest, ()))
 }
 
-fn parse_i32(input: &str) -> Result<(&str, i32), ParseError<'_>> {
-    let (rest, s) = take_while(|c| c.is_digit(10), input)?;
-    let n = s
-        .parse::<i32>()
-        .map_err(|_e| ParseError::InvalidSequence(s))?;
+fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
+    let (rest, s) = take_while(|c| c.is_digit(10) || c == '.' || c== 'e', input)?;
+    let n = s.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(s))?;
     Ok((rest, n))
 }
 
@@ -68,17 +82,6 @@ fn parse_i32(input: &str) -> Result<(&str, i32), ParseError<'_>> {
 //         _ => Err(ParseError::InvalidSequence(s)),
 //     }
 // }
-
-#[derive(Debug)]
-pub(crate) enum Expr {
-    Int(i32),
-    Add(Box<Expr>, Box<Expr>),
-    Sub(Box<Expr>, Box<Expr>),
-    Mul(Box<Expr>, Box<Expr>),
-    Div(Box<Expr>, Box<Expr>),
-    Var(String),
-}
-
 
 pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
 
@@ -132,7 +135,7 @@ fn parse_term(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
 fn parse_factor(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
 
-    if let Ok((rest, num)) = parse_i32(rest) {
+    if let Ok((rest, num)) = parse_f64(rest) {
         return Ok((rest, Expr::Int(num)));
     }
 
@@ -158,12 +161,6 @@ fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
     let (rest, _) = skip_ws(rest)?;
     let name = format!("{}{}", first_char, name_chars);
     Ok((rest, name))
-}
-
-#[derive(Debug)]
-pub(crate) enum Statement {
-    Assign(String, Expr),
-    Expr(Expr),
 }
 
 pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>> {

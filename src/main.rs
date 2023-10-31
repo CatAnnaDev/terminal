@@ -7,6 +7,7 @@ use parser::ParseError;
 use crate::eval::eval_statement;
 
 fn main() -> Result<(), ParseError<'static>> {
+
     let sin = stdin();
     let mut sou = stdout();
     let mut hash = HashMap::new();
@@ -19,13 +20,13 @@ fn main() -> Result<(), ParseError<'static>> {
         let d = data.trim();
         let (_, y) = parser::parse_statement(d).unwrap();
         let eval = eval_statement(y,&mut hash);
-        println!("hash: {:?}", hash);
+        println!("Var:\t{:?}", hash);
         print_data(d, format!("{}", eval.unwrap()));
     }
 }
 
 fn print_data(data: &str, response: String){
-    println!("CMD: {}", data);
-    println!("Result: {}", response);
+    println!("CMD:\t{}", data);
+    println!("Result:\t{}", response);
     println!("{}", format!("{}", "-".repeat(20)));
 }
