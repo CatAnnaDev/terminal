@@ -7,11 +7,12 @@ pub enum ParseError<'a> {
 
 #[derive(Debug)]
 pub(crate) enum Expr {
-    Int(f64),
+    Float(f64),
     Add(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
     Mul(Box<Expr>, Box<Expr>),
     Div(Box<Expr>, Box<Expr>),
+    Pow(Box<Expr>, Box<Expr>),
     Var(String),
 }
 
@@ -69,7 +70,7 @@ fn skip_ws(input: &str) -> Result<(&str, ()), ParseError<'_>> {
 }
 
 fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
-    let (rest, s) = take_while(|c| c.is_digit(10) || c == '.' || c== 'e', input)?;
+    let (rest, s) = take_while(|c| c.is_digit(10) || c == '.' || c== 'e' ||c== 'E', input)?;
     let n = s.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(s))?;
     Ok((rest, n))
 }
@@ -109,7 +110,7 @@ pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
 }
 
 fn parse_term(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
-    let (rest, lhs) = parse_factor(input)?;
+    let (rest, lhs) = parse_pow(input)?;
     let mut i = rest;
     let mut v = lhs;
 
@@ -119,7 +120,7 @@ fn parse_term(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
             Ok(x) => x,
             Err(_) => break Ok((i, v)),
         };
-        let (rest, rhs) = parse_factor(rest)?;
+        let (rest, rhs) = parse_pow(rest)?;
         let r = rhs;
 
         match operator {
@@ -132,11 +133,29 @@ fn parse_term(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     }
 }
 
+fn parse_pow(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
+    let (rest, base) = parse_factor(input)?;
+    let mut i = rest;
+    let mut v = base;
+
+    loop {
+        let (rest, _) = skip_ws(i)?;
+        let (rest, _) = match satisfy(|c| c == '^', rest) {
+            Ok(x) => x,
+            Err(_) => break Ok((i, v)),
+        };
+        let (rest, exp) = parse_pow(rest)?;
+        let r = exp;
+        v = Expr::Pow(Box::from(v), Box::from(r));
+        i = rest;
+    }
+}
+
 fn parse_factor(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
 
     if let Ok((rest, num)) = parse_f64(rest) {
-        return Ok((rest, Expr::Int(num)));
+        return Ok((rest, Expr::Float(num)));
     }
 
     if let Ok((rest, name)) = parse_name(input) {
@@ -185,3 +204,5 @@ pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>>
     let (rest, _) = skip_ws(rest)?;
     Ok((rest, Statement::Expr(expr)))
 }
+
+// a^b^c == (a^(b^c))

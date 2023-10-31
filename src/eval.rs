@@ -4,10 +4,11 @@ use crate::parser::Statement;
 
 pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
     match expr {
-        Expr::Int(e) => Some(e),
+        Expr::Float(e) => Some(e),
         Expr::Add(a, b) => Some(eval(*a, hm)? + eval(*b, hm)?),
         Expr::Sub(a, b) => Some(eval(*a, hm)? - eval(*b, hm)?),
         Expr::Mul(a, b) => Some(eval(*a, hm)? * eval(*b, hm)?),
+        Expr::Pow(a, b) => Some(eval(*a, hm)?.powf(eval(*b, hm)?)),
         Expr::Div(a, b) => {
             let a = eval(*a, hm)?;
             let b = eval(*b, hm)?;
