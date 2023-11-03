@@ -9,6 +9,7 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
         Expr::Add(a, b) => Some(eval(*a, hm)? + eval(*b, hm)?),
         Expr::Sub(a, b) => Some(eval(*a, hm)? - eval(*b, hm)?),
         Expr::Mul(a, b) => Some(eval(*a, hm)? * eval(*b, hm)?),
+        Expr::Mod(a, b) => Some(eval(*a, hm)? % eval(*b, hm)?),
         Expr::Pow(a, b) => Some(eval(*a, hm)?.powf(eval(*b, hm)?)),
         Expr::Div(a, b) => {
             let a = eval(*a, hm)?;

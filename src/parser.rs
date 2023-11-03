@@ -13,6 +13,7 @@ pub(crate) enum Expr {
     Mul(Box<Expr>, Box<Expr>),
     Div(Box<Expr>, Box<Expr>),
     Pow(Box<Expr>, Box<Expr>),
+    Mod(Box<Expr>, Box<Expr>),
     Var(String),
 }
 
@@ -69,9 +70,6 @@ fn skip_ws(input: &str) -> Result<(&str, ()), ParseError<'_>> {
     Ok((rest, ()))
 }
 
-// f64 = -? digit* (. digit*)? ([eE] -? digit*)?
-
-
 fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
     let (restx, pos_or_neg) = match satisfy(|c| c == '-', input) {
         Ok((rest, _)) => (rest, -1.0f64),
@@ -119,7 +117,7 @@ pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
 
     loop {
         let (rest, _) = skip_ws(i)?;
-        let (rest, operator) = match satisfy(|c| c == '+' || c == '-', rest) {
+        let (rest, operator) = match satisfy(|c| c == '+' || c == '-' || c == '%', rest) {
             Ok(x) => x,
             Err(_) => break Ok((i, v)),
         };
@@ -129,6 +127,7 @@ pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
         match operator {
             '+' => v = Expr::Add(Box::from(v), Box::from(r)),
             '-' => v = Expr::Sub(Box::from(v), Box::from(r)),
+            '%' => v = Expr::Mod(Box::from(v), Box::from(r)),
             _ => unreachable!(),
         };
         i = rest;
@@ -230,3 +229,12 @@ pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>>
     let (rest, _) = skip_ws(rest)?;
     Ok((rest, Statement::Expr(expr)))
 }
+
+/*
+
+()
+^
+* / %
++ -
+
+*/
