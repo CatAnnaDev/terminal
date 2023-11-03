@@ -85,15 +85,24 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
         Err(_) => (resty, "0"),
     };
 
-    let (restw, exponent) = match satisfy(|c| c == 'e' || c == 'E', restz) {
+    let (restw,exponent_sign,  exponent) = match satisfy(|c| c == 'e' || c == 'E', restz) {
         Ok((rest, _)) => {
-            let (rest, exp) = take_while(|c| c.is_digit(10), rest)?;
-            (rest, exp)
+            let (rest,sign, exp) = match satisfy(|c| c == '-' , rest) {
+                Ok((rest, _)) => {
+                    let (rest, exp) = take_while(|c| c.is_digit(10), rest)?;
+                    (rest, "-", exp)
+                }
+                Err(_) => {
+                    let (rest, exp) = take_while(|c| c.is_digit(10), rest)?;
+                    (rest,"", exp)
+                }
+            };
+            (rest,sign, exp)
         }
-        Err(_) => (restz, "0"),
+        Err(_) => (restz,"", "0"),
     };
 
-    let final_parse = format!("{integral}.{fractional}e{exponent}");
+    let final_parse = format!("{integral}.{fractional}e{exponent_sign}{exponent}");
     let n = final_parse.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(restw))?;
     Ok((restw, pos_or_neg * n))
 }
@@ -116,7 +125,7 @@ pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
 
     loop {
         let (rest, _) = skip_ws(i)?;
-        let (rest, operator) = match satisfy(|c| c == '+' || c == '-' || c == '%', rest) {
+        let (rest, operator) = match satisfy(|c| c == '+' || c == '-', rest) {
             Ok(x) => x,
             Err(_) => break Ok((i, v)),
         };
@@ -126,7 +135,6 @@ pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
         match operator {
             '+' => v = Expr::Add(Box::from(v), Box::from(r)),
             '-' => v = Expr::Sub(Box::from(v), Box::from(r)),
-            '%' => v = Expr::Mod(Box::from(v), Box::from(r)),
             _ => unreachable!(),
         };
         i = rest;
@@ -140,7 +148,7 @@ fn parse_term(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
 
     loop {
         let (rest, _) = skip_ws(i)?;
-        let (rest, operator) = match satisfy(|c| c == '*' || c == '/', rest) {
+        let (rest, operator) = match satisfy(|c| c == '*' || c == '/' || c == '%', rest) {
             Ok(x) => x,
             Err(_) => break Ok((i, v)),
         };
@@ -150,6 +158,7 @@ fn parse_term(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
         match operator {
             '*' => v = Expr::Mul(Box::from(v), Box::from(r)),
             '/' => v = Expr::Div(Box::from(v), Box::from(r)),
+            '%' => v = Expr::Mod(Box::from(v), Box::from(r)),
             _ => unreachable!(),
         };
 
