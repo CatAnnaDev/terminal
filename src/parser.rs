@@ -1,3 +1,4 @@
+
 #[derive(Debug)]
 pub enum ParseError<'a> {
     Empty,
@@ -14,6 +15,7 @@ pub(crate) enum Expr {
     Div(Box<Expr>, Box<Expr>),
     Pow(Box<Expr>, Box<Expr>),
     Mod(Box<Expr>, Box<Expr>),
+    Call(String, Box<Expr>),
     Var(String),
 }
 
@@ -187,13 +189,16 @@ fn parse_pow(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
 fn parse_factor(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
 
+
+    if let Ok((rest, name)) = parse_name(input) {
+        return parse_maybe_call(name, rest);
+    }
+
+
     if let Ok((rest, num)) = parse_f64(rest) {
         return Ok((rest, Expr::Float(num)));
     }
 
-    if let Ok((rest, name)) = parse_name(input) {
-        return Ok((rest, Expr::Var(name)));
-    }
 
     let (rest, _) = satisfy(|c| c == '(', rest)?;
     let (rest, _) = skip_ws(rest)?;
@@ -214,6 +219,24 @@ fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
     let name = format!("{}{}", first_char, name_chars);
     Ok((rest, name))
 }
+
+
+fn parse_maybe_call(name: String, input: &str) -> Result<(&str, Expr), ParseError<'_>> {
+
+    let (rest, e) = match satisfy(|c| c == '(', input){
+        Ok((expr, _)) => {
+            let (rest,exp) = parse_expr(expr)?;
+            let (rest, _) = satisfy(|c| c == ')', rest)?;
+            (rest, exp)
+        }
+        _ => {
+            (input, Expr::Var(name))
+        }
+    };
+
+    Ok((rest, e))
+}
+
 
 pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
