@@ -69,11 +69,38 @@ fn skip_ws(input: &str) -> Result<(&str, ()), ParseError<'_>> {
     Ok((rest, ()))
 }
 
+// f64 = -? digit* (. digit*)? ([eE] -? digit*)?
+
+
 fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
-    let (rest, s) = take_while(|c| c.is_digit(10) || c == '.' || c== 'e' ||c== 'E', input)?;
-    let n = s.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(s))?;
-    Ok((rest, n))
+    let (restx, pos_or_neg) = match satisfy(|c| c == '-', input) {
+        Ok((rest, _)) => (rest, -1.0f64),
+        Err(_) => (input, 1.0f64),
+    };
+
+    let (resty, integral) = take_while(|c| c.is_digit(10), restx)?;
+    let (restz, fractional) = match satisfy(|c| c == '.', resty) {
+        Ok((rest, dot)) => {
+            let (rest, frac) = take_while(|c| c.is_digit(10), rest)?;
+            (rest, format!("{}{}", dot, frac))
+        }
+        Err(_) => (resty, "".to_string()),
+    };
+
+    let (restw, exponent) = match satisfy(|c| c == 'e' || c == 'E', restz) {
+        Ok((rest, e)) => {
+            let (rest, exp) = take_while(|c| c.is_digit(10), rest)?;
+            (rest, format!("{}{}", e, exp))
+        }
+        Err(_) => (restz, "".to_string()),
+    };
+
+    let final_parse = format!("{}{}{}", integral, fractional, exponent);
+    let (rest, s) = take_while(|c| c.is_digit(10), restw)?;
+    let n = format!("{}{}", final_parse, s).parse::<f64>().map_err(|_e| ParseError::InvalidSequence(s))?;
+    Ok((rest, pos_or_neg * n))
 }
+
 
 // fn parse_bool(input: &str) -> Result<(&str, bool), ParseError<'_>> {
 //     let (rest, s) = take_while(|c| c.is_alphabetic(), input)?;
@@ -85,7 +112,6 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
 // }
 
 pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
-
     let (rest, _) = skip_ws(&input)?;
 
     let (mut i, lhs) = parse_term(rest)?;
@@ -188,9 +214,9 @@ pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>>
     if let Ok((rest, name)) = parse_name(rest) {
         let (rest, _) = skip_ws(rest)?;
 
-        if let Ok((rest, operator)) = satisfy(|c| c == '=' , rest) {
+        if let Ok((rest, operator)) = satisfy(|c| c == '=', rest) {
             let (rest, _) = skip_ws(rest)?;
-            let (rest,expr) = parse_expr(rest)?;
+            let (rest, expr) = parse_expr(rest)?;
             let (rest, _) = skip_ws(rest)?;
 
             let statement = match operator {
@@ -204,5 +230,3 @@ pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>>
     let (rest, _) = skip_ws(rest)?;
     Ok((rest, Statement::Expr(expr)))
 }
-
-// a^b^c == (a^(b^c))

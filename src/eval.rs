@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+
 use crate::parser::Expr;
 use crate::parser::Statement;
 
@@ -12,14 +13,14 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
         Expr::Div(a, b) => {
             let a = eval(*a, hm)?;
             let b = eval(*b, hm)?;
-            if b==0.0 {
+            if b == 0.0 {
                 None
             } else {
                 Some(a / b)
             }
         }
         Expr::Var(s) => {
-            match hm.get(&*s){
+            match hm.get(&*s) {
                 None => None,
                 Some(a) => Some(*a)
             }
