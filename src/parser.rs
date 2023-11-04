@@ -15,7 +15,7 @@ pub(crate) enum Expr {
     Div(Box<Expr>, Box<Expr>),
     Pow(Box<Expr>, Box<Expr>),
     Mod(Box<Expr>, Box<Expr>),
-    Call(String, Box<Expr>),
+    Call(String, Vec<Expr>),
     Var(String),
 }
 
@@ -221,12 +221,22 @@ fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
 
 
 fn parse_maybe_call(name: String, input: &str) -> Result<(&str, Expr), ParseError<'_>> {
-
-    let (rest, e) = match satisfy(|c| c == '(', input){
+    let (rest, e) = match satisfy(|c| c == '(', input) {
         Ok((expr, _)) => {
-            let (rest,exp) = parse_expr(expr)?;
+            let mut args = Vec::new();
+
+            let (mut rest, exp) = parse_expr(expr)?;
+            args.push(exp);
+
+            while let Ok((new_rest, _)) = satisfy(|c| c == ',', rest) {
+                let (next_rest, exp) = parse_expr(new_rest)?;
+                args.push(exp);
+                rest = next_rest;
+            }
+
             let (rest, _) = satisfy(|c| c == ')', rest)?;
-            (rest, Expr::Call(name, Box::from(exp)))
+
+            (rest, Expr::Call(name,  args))
         }
         _ => {
             (input, Expr::Var(name))

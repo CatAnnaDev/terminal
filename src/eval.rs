@@ -13,16 +13,20 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
         Expr::Pow(a, b) => Some(eval(*a, hm)?.powf(eval(*b, hm)?)),
 
         Expr::Call(exp,b) => {
-            let b = eval(*b, hm)?;
+            let mut arg = Vec::new();
+            for exp in b {
+                arg.push(eval(exp, hm)?);
+            }
             match exp.as_str() {
-                "encule" => {Some(b)}
-                "meow" => {Some(b *2.0)}
-                "sin" => {Some(b)}, // opposé / hypoténuse
-                "cos" => {Some(b)}, // adjacent / hypoténuse
-                "tan" => {Some(b)}, // opposé / adjacent
+                "encule" => {Some(arg[0])}
+                "meow" => {Some(arg[0] *2.0)}
+                "sin" => {Some(arg[0].sin())}, // opposé / hypoténuse
+                "cos" => {Some(arg[0].cos())}, // adjacent / hypoténuse
+                "tan" => {Some(arg[0].tan())}, // opposé / adjacent
+                "hypot" => {Some(arg[0].hypot(arg[1]))}
                 _ => {None}
             }
-        },
+        }, // https://www.toutcalculer.com/trigonometrie/imagestrigonometrie/sinus_cosinus_tangente.jpg
 
         Expr::Div(a, b) => {
             let a = eval(*a, hm)?;
