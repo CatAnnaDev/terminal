@@ -17,6 +17,9 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
             match exp.as_str() {
                 "encule" => {Some(b)}
                 "meow" => {Some(b *2.0)}
+                "sin" => {Some(b)}, // opposé / hypoténuse
+                "cos" => {Some(b)}, // adjacent / hypoténuse
+                "tan" => {Some(b)}, // opposé / adjacent
                 _ => {None}
             }
         },

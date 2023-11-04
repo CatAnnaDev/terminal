@@ -215,7 +215,7 @@ fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
     let (rest, _) = skip_ws(rest)?;
     let (rest, name_chars) = take_while(|c| c.is_ascii_alphanumeric() || c == '_', rest)?;
     let (rest, _) = skip_ws(rest)?;
-    let name = format!("{}{}", first_char, name_chars);
+    let name = format!("{}{}", first_char, name_chars).to_lowercase();
     Ok((rest, name))
 }
 
