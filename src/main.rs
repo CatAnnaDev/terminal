@@ -19,10 +19,25 @@ fn main() -> Result<(), ParseError<'static>> {
         sou.flush().unwrap();
         let _ = sin.read_line(&mut data);
         let d = data.trim();
-        let (_, y) = parser::parse_statement(d).unwrap();
-        let eval = eval_statement(y, &mut hash);
-        println!("Var:\t{:?}", hash);
-        print_data(d, format!("{}", eval.unwrap()));
+        if d == "help"{
+println!(r#"    sin(radian) => f64
+    cos(radian) => f64
+    tan(radian) => f64
+    hypot(value, value) => f64
+    sqrt(value) => f64
+    log(value, base) => f64
+    log2(value) => f64
+    log10(value) => f64
+    deg2rad(degrees) => radian
+    rad2deg(radian) => degrees
+    supported signe: + - / * ^ e () .
+    var system: var_name=10"#)
+        }else {
+            let (_, y) = parser::parse_statement(d).unwrap();
+            let eval = eval_statement(y, &mut hash);
+            println!("Var:\t{:?}", hash);
+            print_data(d, format!("{}", eval.unwrap()));
+        }
     }
 }
 
