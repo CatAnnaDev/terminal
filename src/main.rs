@@ -28,6 +28,9 @@ println!(r#"    sin(radian) => f64
     log(value, base) => f64
     log2(value) => f64
     log10(value) => f64
+    abs(value) => f64
+    rnd(value) => f64
+    facto(value) => f64
     deg2rad(degrees) => radian
     rad2deg(radian) => degrees
     supported signe: + - / * ^ e () .
@@ -46,3 +49,5 @@ fn print_data(data: &str, response: String) {
     println!("Result:\t{}", response);
     println!("{}", format!("{}", "-".repeat(20)));
 }
+
+// rnd(x=1.3*5.6 / 1.1 + 0.78) crash
