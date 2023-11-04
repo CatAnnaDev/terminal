@@ -194,7 +194,6 @@ fn parse_factor(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
         return parse_maybe_call(name, rest);
     }
 
-
     if let Ok((rest, num)) = parse_f64(rest) {
         return Ok((rest, Expr::Float(num)));
     }
@@ -227,13 +226,12 @@ fn parse_maybe_call(name: String, input: &str) -> Result<(&str, Expr), ParseErro
         Ok((expr, _)) => {
             let (rest,exp) = parse_expr(expr)?;
             let (rest, _) = satisfy(|c| c == ')', rest)?;
-            (rest, exp)
+            (rest, Expr::Call(name, Box::from(exp)))
         }
         _ => {
             (input, Expr::Var(name))
         }
     };
-
     Ok((rest, e))
 }
 
