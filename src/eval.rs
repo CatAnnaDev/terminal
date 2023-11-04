@@ -20,9 +20,9 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
             match exp.as_str() {
                 "encule" => {Some(arg[0])}
                 "meow" => {Some(arg[0] *2.0)}
-                "sin" => {Some(arg[0].sin())}, // opposé / hypoténuse
-                "cos" => {Some(arg[0].cos())}, // adjacent / hypoténuse
-                "tan" => {Some(arg[0].tan())}, // opposé / adjacent
+                "sin" => {Some(arg[0].to_radians().sin())}, // opposé / hypoténuse
+                "cos" => {Some(arg[0].to_radians().cos())}, // adjacent / hypoténuse
+                "tan" => {Some(arg[0].to_radians().tan())}, // opposé / adjacent
                 "hypot" => {Some(arg[0].hypot(arg[1]))}
                 _ => {None}
             }
