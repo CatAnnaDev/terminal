@@ -1,12 +1,8 @@
 extern crate core;
-
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
-
 use parser::ParseError;
-
 use crate::eval::eval_statement;
-
 mod parser;
 mod eval;
 

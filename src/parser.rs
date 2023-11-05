@@ -72,13 +72,13 @@ fn skip_ws(input: &str) -> Result<(&str, ()), ParseError<'_>> {
 }
 
 fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
-    let (restx, pos_or_neg) = match satisfy(|c| c == '-', input) {
+    let (rest, pos_or_neg) = match satisfy(|c| c == '-', input) {
         Ok((rest, _)) => (rest, -1.0f64),
         Err(_) => (input, 1.0f64),
     };
 
-    let (resty, integral) = take_while(|c| c.is_digit(10), restx)?;
-    let (restz, fractional) = match satisfy(|c| c == '.', resty) {
+    let (resty, integral) = take_while(|c| c.is_digit(10), rest)?;
+    let (rest, fractional) = match satisfy(|c| c == '.', resty) {
         Ok((rest, _)) => {
             let (rest, frac) = take_while(|c| c.is_digit(10), rest)?;
             (rest, frac)
@@ -86,7 +86,7 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
         Err(_) => (resty, "0"),
     };
 
-    let (restw, exponent_sign, exponent) = match satisfy(|c| c == 'e' || c == 'E', restz) {
+    let (rest, exponent_sign, exponent) = match satisfy(|c| c == 'e' || c == 'E', rest) {
         Ok((rest, _)) => {
             let (rest, sign, exp) = match satisfy(|c| c == '-', rest) {
                 Ok((rest, _)) => {
@@ -100,12 +100,12 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
             };
             (rest, sign, exp)
         }
-        Err(_) => (restz, "", "0"),
+        Err(_) => (rest, "", "0"),
     };
 
     let final_parse = format!("{integral}.{fractional}e{exponent_sign}{exponent}");
-    let n = final_parse.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(restw))?;
-    Ok((restw, pos_or_neg * n))
+    let n = final_parse.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(rest))?;
+    Ok((rest, pos_or_neg * n))
 }
 
 pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
