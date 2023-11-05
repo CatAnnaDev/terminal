@@ -19,7 +19,7 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
                 arg.push(eval(exp, hm)?);
             }
             match exp.as_str() {
-                "encule" => { Some(arg[0]) }
+                "enculé" => { Some(arg[0]) } // merci Lily <3
                 "meow" => { Some(arg[0] * 2.0) }
                 "sin" => { Some(arg[0].sin()) }
                 "cos" => { Some(arg[0].cos()) }
@@ -31,7 +31,7 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
                 "log10" => { Some(arg[0].log10()) }
                 "abs" => { Some(arg[0].abs()) }
                 "rnd" => { Some(arg[0].round()) }
-                "facto" => { Some(factorielle(arg[0] as u64)) }
+                "facto" => { Some(facto(arg[0] as u64)) }
                 "deg2rad" => { Some(arg[0] * (consts::PI / 180.0)) }
                 "rad2deg" => { Some(arg[0] * (180.0 / consts::PI)) }
 
@@ -57,11 +57,11 @@ pub fn eval(expr: Expr, hm: &HashMap<String, f64>) -> Option<f64> {
     }
 }
 
-fn factorielle(nb: u64) -> f64 {
+fn facto(nb: u64) -> f64 {
     if nb <= 0 {
         return 1.0;
     }
-    return nb as f64 * factorielle(nb - 1);
+    return nb as f64 * facto(nb - 1);
 }
 
 pub fn eval_statement(stmt: Statement, hm: &mut HashMap<String, f64>) -> Option<f64> {
