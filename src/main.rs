@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
 
@@ -36,10 +38,15 @@ println!(r#"    sin(radian) => f64
     supported signe: + - / * ^ e () .
     var system: var_name=10"#)
         }else {
-            let (_, y) = parser::parse_statement(d).unwrap();
-            let eval = eval_statement(y, &mut hash);
-            println!("Var:\t{:?}", hash);
-            print_data(d, format!("{}", eval.unwrap()));
+            match parser::parse_statement(d){
+                Ok((_, stat)) => {
+                    let eval = eval_statement(stat, &mut hash);
+                    println!("Var:\t{:?}", hash);
+                    print_data(d, format!("{:?}", eval.ok_or(ParseError::Empty)));
+                }
+                Err(e) => println!("Bad request: {:?}", e)
+            };
+
         }
     }
 }

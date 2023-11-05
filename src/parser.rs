@@ -1,4 +1,3 @@
-
 #[derive(Debug)]
 pub enum ParseError<'a> {
     Empty,
@@ -108,16 +107,6 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
     let n = final_parse.parse::<f64>().map_err(|_e| ParseError::InvalidSequence(restw))?;
     Ok((restw, pos_or_neg * n))
 }
-
-
-// fn parse_bool(input: &str) -> Result<(&str, bool), ParseError<'_>> {
-//     let (rest, s) = take_while(|c| c.is_alphabetic(), input)?;
-//     match s {
-//         "true" => Ok((rest, true)),
-//         "false" => Ok((rest, false)),
-//         _ => Err(ParseError::InvalidSequence(s)),
-//     }
-// }
 
 pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
     let (rest, _) = skip_ws(&input)?;
@@ -268,12 +257,3 @@ pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>>
     let (rest, _) = skip_ws(rest)?;
     Ok((rest, Statement::Expr(expr)))
 }
-
-/*
-
-()
-^
-* / %
-+ -
-
-*/

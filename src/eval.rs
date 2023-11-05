@@ -75,9 +75,3 @@ pub fn eval_statement(stmt: Statement, hm: &mut HashMap<String, f64>) -> Option<
         }
     }
 }
-/*
-factorielle 12!=12*11*10*9*8*7*6*5*4*3*2*1=479001600
-
-1 degré = pi/180 radian
-1 radian = 180/pi degrés
- */
