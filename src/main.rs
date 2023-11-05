@@ -56,5 +56,3 @@ fn print_data(data: &str, response: String) {
     println!("Result:\t{}", response);
     println!("{}", format!("{}", "-".repeat(20)));
 }
-
-// rnd(x=1.3*5.6 / 1.1 + 0.78) crash
