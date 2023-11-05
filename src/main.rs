@@ -21,8 +21,8 @@ fn main() -> Result<(), ParseError<'static>> {
         sou.flush().unwrap();
         let _ = sin.read_line(&mut data);
         let d = data.trim();
-        if d == "help"{
-println!(r#"    sin(radian) => f64
+        if d == "help" {
+            println!(r#"    sin(radian) => f64
     cos(radian) => f64
     tan(radian) => f64
     hypot(value, value) => f64
@@ -37,8 +37,8 @@ println!(r#"    sin(radian) => f64
     rad2deg(radian) => degrees
     supported signe: + - / * ^ e () .
     var system: var_name=10"#)
-        }else {
-            match parser::parse_statement(d){
+        } else {
+            match parser::parse_statement(d) {
                 Ok((_, stat)) => {
                     let eval = eval_statement(stat, &mut hash);
                     println!("Var:\t{:?}", hash);
@@ -46,7 +46,6 @@ println!(r#"    sin(radian) => f64
                 }
                 Err(e) => println!("Bad request: {:?}", e)
             };
-
         }
     }
 }

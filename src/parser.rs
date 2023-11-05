@@ -86,21 +86,21 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
         Err(_) => (resty, "0"),
     };
 
-    let (restw,exponent_sign,  exponent) = match satisfy(|c| c == 'e' || c == 'E', restz) {
+    let (restw, exponent_sign, exponent) = match satisfy(|c| c == 'e' || c == 'E', restz) {
         Ok((rest, _)) => {
-            let (rest,sign, exp) = match satisfy(|c| c == '-' , rest) {
+            let (rest, sign, exp) = match satisfy(|c| c == '-', rest) {
                 Ok((rest, _)) => {
                     let (rest, exp) = take_while(|c| c.is_digit(10), rest)?;
                     (rest, "-", exp)
                 }
                 Err(_) => {
                     let (rest, exp) = take_while(|c| c.is_digit(10), rest)?;
-                    (rest,"", exp)
+                    (rest, "", exp)
                 }
             };
-            (rest,sign, exp)
+            (rest, sign, exp)
         }
-        Err(_) => (restz,"", "0"),
+        Err(_) => (restz, "", "0"),
     };
 
     let final_parse = format!("{integral}.{fractional}e{exponent_sign}{exponent}");
@@ -225,7 +225,7 @@ fn parse_maybe_call(name: String, input: &str) -> Result<(&str, Expr), ParseErro
 
             let (rest, _) = satisfy(|c| c == ')', rest)?;
 
-            (rest, Expr::Call(name,  args))
+            (rest, Expr::Call(name, args))
         }
         _ => {
             (input, Expr::Var(name))
