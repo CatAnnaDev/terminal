@@ -36,11 +36,12 @@ fn main() -> Result<(), ParseError<'static>> {
         } else {
             match parser::parse_statement(d) {
                 Ok((_, stat)) => {
-                    let eval = eval_statement(stat, &mut hash);
-                    println!("Var:\t{:?}", hash);
-                    print_data(d, format!("{:?}", eval.ok_or(ParseError::Empty)));
+                    match eval_statement(stat, &mut hash){
+                        Some(eval) => {println!("Var:\t{:?}", hash); print_data(d, format!("{}", eval))},
+                        None => eprintln!("{d} | Error")
+                    }
                 }
-                Err(e) => println!("Bad request: {:?}", e)
+                Err(e) => eprintln!("Bad request: {:?}", e)
             };
         }
     }
@@ -49,5 +50,5 @@ fn main() -> Result<(), ParseError<'static>> {
 fn print_data(data: &str, response: String) {
     println!("CMD:\t{}", data);
     println!("Result:\t{}", response);
-    println!("{}", format!("{}", "-".repeat(20)));
+    println!("{}", format!("{}", "-".repeat(30)));
 }
