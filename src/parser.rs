@@ -6,7 +6,7 @@ pub enum ParseError<'a> {
 }
 
 #[derive(Debug)]
-pub(crate) enum Expr {
+pub enum Expr {
     Float(f64),
     Add(Box<Expr>, Box<Expr>),
     Sub(Box<Expr>, Box<Expr>),
@@ -19,12 +19,12 @@ pub(crate) enum Expr {
 }
 
 #[derive(Debug)]
-pub(crate) enum Statement {
+pub enum Statement {
     Assign(String, Expr),
     Expr(Expr),
 }
 
-fn any_char(input: &str) -> Result<(&str, char), ParseError<'_>> {
+pub fn any_char(input: &str) -> Result<(&str, char), ParseError<'_>> {
     match input.chars().next() {
         None => Err(ParseError::Empty),
         Some(c) => Ok((&input[c.len_utf8()..], c)),
@@ -47,15 +47,15 @@ fn satisfy<F>(f: F, input: &str) -> Result<(&str, char), ParseError<'_>>
     }
 }
 
-fn take_while<F>(f: F, input: &str) -> Result<(&str, &str), ParseError<'_>>
+pub(crate) fn take_while<F>(f: F, input: &str) -> Result<(&str, &str), ParseError<'_>>
     where
         F: Fn(char) -> bool,
 {
     let mut index = 0;
     loop {
         match any_char(&input[index..]) {
-            Err(_e) => break Ok((&input[index..], &input[..index])),
-            Ok((_rest, c)) => {
+            Err(_) => break Ok((&input[index..], &input[..index])),
+            Ok((_, c)) => {
                 if f(c) {
                     index += c.len_utf8();
                 } else {
@@ -108,7 +108,7 @@ fn parse_f64(input: &str) -> Result<(&str, f64), ParseError> {
     Ok((rest, pos_or_neg * n))
 }
 
-pub fn parse_expr(input: &str) -> Result<(&'_ str, Expr), ParseError<'_>> {
+pub fn parse_expr(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     let (rest, _) = skip_ws(&input)?;
 
     let (mut i, lhs) = parse_term(rest)?;
@@ -198,7 +198,7 @@ fn parse_factor(input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     Ok((rest, expr))
 }
 
-fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
+pub fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
     let (rest, first_char) = satisfy(|c| c.is_ascii_alphabetic() || c == '_', rest)?;
     let (rest, _) = skip_ws(rest)?;
@@ -207,7 +207,6 @@ fn parse_name(input: &str) -> Result<(&str, String), ParseError<'_>> {
     let name = format!("{}{}", first_char, name_chars).to_lowercase();
     Ok((rest, name))
 }
-
 
 fn parse_maybe_call(name: String, input: &str) -> Result<(&str, Expr), ParseError<'_>> {
     let (rest, e) = match satisfy(|c| c == '(', input) {
@@ -233,7 +232,6 @@ fn parse_maybe_call(name: String, input: &str) -> Result<(&str, Expr), ParseErro
     };
     Ok((rest, e))
 }
-
 
 pub fn parse_statement(input: &str) -> Result<(&str, Statement), ParseError<'_>> {
     let (rest, _) = skip_ws(input)?;
